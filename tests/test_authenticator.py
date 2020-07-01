@@ -427,6 +427,11 @@ class TestGetUsername(unittest.TestCase):
         assert 'Bluedata' == a._get_username_from_saml_doc(tampered_assertion_etree, self.response_etree)
 
 
+class TestGetRole(unittest.TestCase):
+    response_etree = etree.fromstring()
+    verified_signed_xml = XMLVerifier().verify(response_etree, x509_cert=).signed_xml
+
+
 class TestRoleAccess(unittest.TestCase):
 
     def test_check_role(self):
