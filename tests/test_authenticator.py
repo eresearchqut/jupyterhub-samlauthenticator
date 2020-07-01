@@ -428,8 +428,17 @@ class TestGetUsername(unittest.TestCase):
 
 
 class TestGetRole(unittest.TestCase):
-    response_etree = etree.fromstring()
-    verified_signed_xml = XMLVerifier().verify(response_etree, x509_cert=).signed_xml
+    response_etree = etree.fromstring(test_constants.sample_response_xml_with_one_role)
+    verified_signed_xml = XMLVerifier().verify(response_etree, x509_cert=test_constants.x509_cert).signed_xml
+
+    def test_get_roles_from_saml_doc(self):
+        a = SAMLAuthenticator()
+        a.xpath_role_location = '//saml:AttributeStatement/saml:Attribute[@Name="Roles"]/saml:AttributeValue/text()'
+
+        assert ['Default'] == a._get_roles_from_saml_etree(self.verified_signed_xml)
+        assert ['Default'] == a._get_roles_from_saml_etree(self.response_etree)
+        assert ['Default'] == a._get_roles_from_saml_doc(self.verified_signed_xml, self.response_etree)
+
 
 
 class TestRoleAccess(unittest.TestCase):
