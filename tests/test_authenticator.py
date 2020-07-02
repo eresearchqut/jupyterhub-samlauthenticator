@@ -441,9 +441,9 @@ class TestGetSingleRole(unittest.TestCase):
 
         a.xpath_role_location = '//saml:AttributeStatement/saml:Attribute[@Name="Bad_Role_Location"]/saml:AttributeValue/text()'
 
-        assert a._get_roles_from_saml_etree(self.verified_signed_xml) is None
-        assert a._get_roles_from_saml_etree(self.response_etree) is None
-        assert a._get_roles_from_saml_doc(self.verified_signed_xml, self.response_etree) is None
+        assert a._get_roles_from_saml_etree(self.verified_signed_xml) == []
+        assert a._get_roles_from_saml_etree(self.response_etree) == []
+        assert a._get_roles_from_saml_doc(self.verified_signed_xml, self.response_etree) == []
 
 
 class TestGetManyRoles(unittest.TestCase):
