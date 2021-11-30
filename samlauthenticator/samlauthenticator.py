@@ -618,8 +618,10 @@ class SAMLAuthenticator(Authenticator):
             xpath_fun = xpath_with_namespaces(self.xpath_uid_location)
             xpath_result = xpath_fun(signed_xml)
 
-            if xpath_result:
-                return xpath_result
+            if type(xpath_result) is list and len(xpath_result) > 0:
+                xpath_result = xpath_result[0]
+
+            return xpath_result
 
             self.log.warning('Could not find user ID from UID XPath')
 
