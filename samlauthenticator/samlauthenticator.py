@@ -759,7 +759,7 @@ class SAMLAuthenticator(Authenticator):
             if self.xpath_uid_location:
                 uid = self._get_uid_from_saml_doc(signed_xml, saml_doc_etree)
                 self.log.debug('UID is defined. Setting UID to ' + str(uid))
-                user_details['uid'] = uid
+                user_details['auth_state']['uid'] = uid
 
             return user_details
         else:
