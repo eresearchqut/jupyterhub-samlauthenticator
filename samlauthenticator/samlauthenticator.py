@@ -324,6 +324,15 @@ class SAMLAuthenticator(Authenticator):
         be a jupyterhub administrator.
         '''
     )
+    xpath_uid_location = Unicode(
+        default_value=None,
+        allow_none=True,
+        config=True,
+        help='''
+        This is an XPath that specifies where the user's ID is located in
+        the SAML  Assertion.
+        '''
+    )
     _const_warn_explain       = 'Because no user would be allowed to log in via roles, role check disabled.'
     _const_warn_no_role_xpath = 'Allowed roles set while role location XPath is not set.'
     _const_warn_no_roles      = 'Allowed roles not set while role location XPath is set.'
@@ -603,6 +612,19 @@ class SAMLAuthenticator(Authenticator):
 
         return []
 
+    def _get_uid_from_saml_etree(self, signed_xml):
+        if self.xpath_uid_location:
+            xpath_with_namespaces = self._make_xpath_builder()
+            xpath_fun = xpath_with_namespaces(self.xpath_uid_location)
+            xpath_result = xpath_fun(signed_xml)
+
+            if xpath_result:
+                return xpath_result
+
+            self.log.warning('Could not find user ID from UID XPath')
+
+        return None
+
     def _get_username_from_saml_doc(self, signed_xml, decoded_saml_doc):
         user_name = self._get_username_from_saml_etree(signed_xml)
         if user_name:
@@ -620,6 +642,11 @@ class SAMLAuthenticator(Authenticator):
         self.log.info('Did not get user roles from signed SAML Response')
 
         return self._get_roles_from_saml_etree(decoded_saml_doc)
+
+    def _get_uid_from_saml_doc(self, signed_xml, decoded_saml_doc):
+        uid = self._get_uid_from_saml_etree(signed_xml)
+
+        return uid
 
     def _optional_user_add(self, username):
         try:
@@ -728,6 +755,11 @@ class SAMLAuthenticator(Authenticator):
                 is_admin = self._check_admin_role(user_roles)
                 self.log.debug('Admin roles defined. Setting admin status to ' + str(is_admin))
                 user_details['admin'] = is_admin
+
+            if self.xpath_uid_location:
+                uid = self._get_uid_from_saml_doc(signed_xml, saml_doc_etree)
+                self.log.debug('UID is defined. Setting UID to ' + str(uid))
+                user_details['uid'] = uid
 
             return user_details
         else:
