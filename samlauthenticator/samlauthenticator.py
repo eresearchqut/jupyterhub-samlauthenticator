@@ -867,6 +867,9 @@ class SAMLAuthenticator(Authenticator):
     def get_handlers(authenticator_self, app):
 
         class SAMLLoginHandler(LoginHandler):
+            def check_xsrf_cookie(self):
+                # Do not attempt to check for xsrf parameter in POST requests.
+                return
 
             async def get(login_handler_self):
                 login_handler_self.log.info('Starting SP-initiated SAML Login')
@@ -874,6 +877,10 @@ class SAMLAuthenticator(Authenticator):
                                                                             login_handler_self)
 
         class SAMLLogoutHandler(LogoutHandler):
+            def check_xsrf_cookie(self):
+                # Do not attempt to check for xsrf parameter in POST requests.
+                return
+
             # TODO: When the time is right to force users onto JupyterHub 1.0.0,
             # refactor this.
             async def _shutdown_servers(self, user):
@@ -921,7 +928,6 @@ class SAMLAuthenticator(Authenticator):
                     logout_handler_self.finish(html)
 
         class SAMLMetaHandler(BaseHandler):
-
             async def get(meta_handler_self):
                 xml_content = authenticator_self._make_sp_metadata(meta_handler_self)
                 meta_handler_self.set_header('Content-Type', 'text/xml')
