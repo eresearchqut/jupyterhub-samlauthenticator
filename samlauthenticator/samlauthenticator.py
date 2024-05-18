@@ -750,7 +750,8 @@ class SAMLAuthenticator(Authenticator):
                 'name': username,
                 'auth_state': {
                     'roles': user_roles
-                }
+                },
+                'groups': user_roles
             }
 
             if self.admin_roles:
